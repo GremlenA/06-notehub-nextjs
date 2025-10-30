@@ -11,8 +11,7 @@ import { fetchNotes } from "@/app/lib/api";
 import type { FetchNotesResponse } from "@/app/lib/api";
 import css from "./NotesPage.module.css";
 
-
-export default function NotesPage() {
+export default function NotesClient() {
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
   const [deletingId, setDeletingId] = useState<string | null>(null);
@@ -24,14 +23,11 @@ export default function NotesPage() {
     setPage(1);
   };
 
-  const queryKey = ["notes", page, debouncedSearch] as const;
   const { data, isLoading, isError, isFetching } = useQuery<
     FetchNotesResponse,
-    Error,
-    FetchNotesResponse,
-    readonly [string, number, string]
+    Error
   >({
-    queryKey,
+    queryKey: ["notes", page, debouncedSearch],
     queryFn: () => fetchNotes({ page, search: debouncedSearch }),
     placeholderData: keepPreviousData,
     staleTime: 2000,
@@ -39,7 +35,6 @@ export default function NotesPage() {
 
   const notes = data?.notes ?? [];
   const totalPages = data?.totalPages ?? 1;
-
 
   if (isLoading && !isFetching) return <p>Loading...</p>;
   if (isError) return <p>Error loading notes</p>;
@@ -53,10 +48,7 @@ export default function NotesPage() {
           <Pagination
             currentPage={page}
             totalPages={totalPages}
-           onPageChange={(next) => {
-  if (next > totalPages) setPage(1);
-  else setPage(next);
-}}
+            onPageChange={(next) => setPage(next > totalPages ? 1 : next)}
           />
         )}
 
