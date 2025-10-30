@@ -2,16 +2,14 @@
 
 import { useState } from "react";
 import { useQuery, keepPreviousData } from "@tanstack/react-query";
-import { useDebounce } from "use-debounce";
-import { fetchNotes } from "@/app/lib/api";
-import type { FetchNotesResponse } from "@/app/lib/api";
-
+import NoteList from "@/app/components/NoteList/NoteList";
 import SearchBox from "@/app/components/SearchBox/SearchBox";
 import Pagination from "@/app/components/Pagination/Pagination";
 import Modal from "@/app/components/Modal/Modal";
 import NoteForm from "@/app/components/NoteForm/NoteForm";
-import NoteList from "@/app/components/NoteList/NoteList";
-
+import { useDebounce } from "use-debounce";
+import { fetchNotes } from "@/app/lib/api";
+import type { FetchNotesResponse } from "@/app/lib/api";
 import css from "./NotesPage.module.css";
 
 export default function NotesClient() {
@@ -19,14 +17,22 @@ export default function NotesClient() {
   const [search, setSearch] = useState("");
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-
   const [debouncedSearch] = useDebounce(search, 500);
 
-  const { data, isError, isLoading, isFetching } = useQuery<
+  const handleSearchChange = (value: string) => {
+    setSearch(value);
+    setPage(1);
+  };
+
+  const queryKey = ["notes", page, debouncedSearch] as const;
+
+  const { data, isLoading, isError, isFetching } = useQuery<
     FetchNotesResponse,
-    Error
+    Error,
+    FetchNotesResponse,
+    readonly [string, number, string]
   >({
-    queryKey: ["notes", page, debouncedSearch],
+    queryKey,
     queryFn: () => fetchNotes({ page, search: debouncedSearch }),
     placeholderData: keepPreviousData,
     staleTime: 2000,
@@ -41,13 +47,13 @@ export default function NotesClient() {
   return (
     <div className={css.app}>
       <header className={css.toolbar}>
-        <SearchBox value={search} onChange={setSearch} />
+        <SearchBox value={search} onChange={handleSearchChange} />
 
         {totalPages > 1 && (
           <Pagination
-            totalPages={totalPages}
             currentPage={page}
-            onPageChange={(next) => setPage(next > totalPages ? 1 : next)}
+            totalPages={totalPages}
+            onPageChange={(next) => setPage(next)}
           />
         )}
 
@@ -56,14 +62,14 @@ export default function NotesClient() {
         </button>
       </header>
 
-      {notes.length ? (
+      {notes.length > 0 ? (
         <NoteList
           notes={notes}
           deletingId={deletingId}
           setDeletingId={setDeletingId}
         />
       ) : (
-        !isFetching && <p className={css.empty}>Notes not found</p>
+        !isFetching && <p className={css.empty}>Not found</p>
       )}
 
       {isModalOpen && (
