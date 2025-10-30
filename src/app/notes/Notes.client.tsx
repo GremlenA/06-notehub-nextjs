@@ -1,14 +1,17 @@
 "use client";
+
 import { useState } from "react";
 import { useQuery, keepPreviousData } from "@tanstack/react-query";
-import NoteList from "@/app/components/NoteList/NoteList";
+import { useDebounce } from "use-debounce";
+import { fetchNotes } from "@/app/lib/api";
+import type { FetchNotesResponse } from "@/app/lib/api";
+
 import SearchBox from "@/app/components/SearchBox/SearchBox";
 import Pagination from "@/app/components/Pagination/Pagination";
 import Modal from "@/app/components/Modal/Modal";
 import NoteForm from "@/app/components/NoteForm/NoteForm";
-import { useDebounce } from "use-debounce";
-import { fetchNotes } from "@/app/lib/api";
-import type { FetchNotesResponse } from "@/app/lib/api";
+import NoteList from "@/app/components/NoteList/NoteList";
+
 import css from "./NotesPage.module.css";
 
 export default function NotesClient() {
@@ -16,14 +19,10 @@ export default function NotesClient() {
   const [search, setSearch] = useState("");
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+
   const [debouncedSearch] = useDebounce(search, 500);
 
-  const handleSearchChange = (value: string) => {
-    setSearch(value);
-    setPage(1);
-  };
-
-  const { data, isLoading, isError, isFetching } = useQuery<
+  const { data, isError, isLoading, isFetching } = useQuery<
     FetchNotesResponse,
     Error
   >({
@@ -42,12 +41,12 @@ export default function NotesClient() {
   return (
     <div className={css.app}>
       <header className={css.toolbar}>
-        <SearchBox value={search} onChange={handleSearchChange} />
+        <SearchBox value={search} onChange={setSearch} />
 
         {totalPages > 1 && (
           <Pagination
-            currentPage={page}
             totalPages={totalPages}
+            currentPage={page}
             onPageChange={(next) => setPage(next > totalPages ? 1 : next)}
           />
         )}
@@ -57,10 +56,14 @@ export default function NotesClient() {
         </button>
       </header>
 
-      {notes.length > 0 ? (
-        <NoteList notes={notes} deletingId={deletingId} setDeletingId={setDeletingId} />
+      {notes.length ? (
+        <NoteList
+          notes={notes}
+          deletingId={deletingId}
+          setDeletingId={setDeletingId}
+        />
       ) : (
-        !isFetching && <p className={css.empty}>Нотатки не знайдено</p>
+        !isFetching && <p className={css.empty}>Notes not found</p>
       )}
 
       {isModalOpen && (
