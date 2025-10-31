@@ -2,19 +2,18 @@
 
 import { useState } from "react";
 import { useQuery, keepPreviousData } from "@tanstack/react-query";
-import NoteList from "@/app/components/NoteList/NoteList";
-import SearchBox from "@/app/components/SearchBox/SearchBox";
-import Modal from "@/app/components/Modal/Modal";
-import NoteForm from "@/app/components/NoteForm/NoteForm";
+import NoteList from "../components/NoteList/NoteList";
+import SearchBox from "../components/SearchBox/SearchBox";
+import Modal from "../components/Modal/Modal";
+import NoteForm from "../components/NoteForm/NoteForm";
 import { useDebounce } from "use-debounce";
-import { fetchNotes } from "@/app/lib/api";
-import type { FetchNotesResponse } from "@/app/lib/api";
+import { fetchNotes } from "../lib/api";
+import type { FetchNotesResponse } from "../lib/api";
 import dynamic from "next/dynamic";
 import css from "./NotesPage.module.css";
 
-// ✅ Динамический импорт Pagination (иначе ошибка document is not defined при билде)
 const Pagination = dynamic(
-  () => import("@/app/components/Pagination/Pagination"),
+  () => import("../components/Pagination/Pagination"),
   { ssr: false }
 );
 
