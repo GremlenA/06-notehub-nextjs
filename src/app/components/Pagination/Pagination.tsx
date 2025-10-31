@@ -1,15 +1,19 @@
-"use client"
-import React from 'react';
-import ReactPaginate from 'react-paginate';
-import css from './Pagination.module.css';
+"use client";
+import React from "react";
+import ReactPaginate from "react-paginate";
+import css from "./Pagination.module.css";
 
 interface PaginationProps {
   totalPages: number;
-  currentPage: number; 
+  currentPage: number;
   onPageChange: (page: number) => void;
 }
 
-const Pagination: React.FC<PaginationProps> = ({ totalPages, currentPage, onPageChange }) => {
+const Pagination: React.FC<PaginationProps> = ({
+  totalPages,
+  currentPage,
+  onPageChange,
+}) => {
   if (totalPages <= 1) return null;
 
   return (
