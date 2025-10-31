@@ -1,31 +1,48 @@
-import { useEffect } from 'react';
-import { createPortal } from 'react-dom';
-import css from './Modal.module.css';
+"use client";
+
+import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
+import css from "./Modal.module.css";
 
 interface Props {
   children: React.ReactNode;
   onClose: () => void;
 }
 
-const modalRoot = document.getElementById('modal-root') ?? document.body;
-
 const Modal: React.FC<Props> = ({ children, onClose }) => {
+  const [mounted, setMounted] = useState(false);
+  const [modalRoot, setModalRoot] = useState<HTMLElement | null>(null);
+
   useEffect(() => {
-    // Блокировка прокрутки
+    if (typeof document === "undefined") return;
+
+    
+    queueMicrotask(() => {
+      const root = document.getElementById("modal-root") ?? document.body;
+      setModalRoot(root);
+      setMounted(true);
+    });
+  }, []);
+
+  useEffect(() => {
+    if (!mounted) return;
+
     const originalOverflow = document.body.style.overflow;
-    document.body.style.overflow = 'hidden';
+    document.body.style.overflow = "hidden";
 
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose();
+      if (e.key === "Escape") onClose();
     };
-    document.addEventListener('keydown', onKey);
+
+    document.addEventListener("keydown", onKey);
 
     return () => {
-      document.removeEventListener('keydown', onKey);
-      // Восстановление прокрутки
+      document.removeEventListener("keydown", onKey);
       document.body.style.overflow = originalOverflow;
     };
-  }, [onClose]);
+  }, [mounted, onClose]);
+
+  if (!mounted || !modalRoot) return null;
 
   return createPortal(
     <div
