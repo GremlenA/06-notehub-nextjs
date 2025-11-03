@@ -2,10 +2,10 @@
 
 import { useState } from "react";
 import { useQuery, keepPreviousData } from "@tanstack/react-query";
-import NoteList from "../components/NoteList/NoteList";
-import SearchBox from "../components/SearchBox/SearchBox";
-import Modal from "../components/Modal/Modal";
-import NoteForm from "../components/NoteForm/NoteForm";
+import NoteList from "../../components/NoteList/NoteList";
+import SearchBox from "../../components/SearchBox/SearchBox";
+import Modal from "../../components/Modal/Modal";
+import NoteForm from "../../components/NoteForm/NoteForm";
 import { useDebounce } from "use-debounce";
 import { fetchNotes } from "../lib/api";
 import type { FetchNotesResponse } from "../lib/api";
@@ -13,7 +13,7 @@ import dynamic from "next/dynamic";
 import css from "./NotesPage.module.css";
 
 const Pagination = dynamic(
-  () => import("../components/Pagination/Pagination"),
+  () => import("../../components/Pagination/Pagination"),
   { ssr: false }
 );
 

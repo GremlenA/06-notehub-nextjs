@@ -4,11 +4,11 @@ import type { FormikHelpers } from 'formik';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
 import css from './NoteForm.module.css';
-import type{ NewNote } from '../../../types//note';
+import type{ NewNote } from '../../types/note';
 import { createNote } from '../../lib/api';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 
-interface Props {
+interface NoteFormProps {
   onCancel: () => void;
   onSuccess: () => void;
 }
@@ -21,7 +21,7 @@ const validationSchema = Yup.object().shape({
   tag: Yup.mixed().oneOf(tagOptions as readonly string[]).required('Required'),
 });
 
-const NoteForm: React.FC<Props> = ({ onCancel, onSuccess }) => {
+const NoteForm: React.FC<NoteFormProps> = ({ onCancel, onSuccess }) => {
   const qc = useQueryClient();
   const mutation = useMutation({
     mutationFn: (data: NewNote) => createNote(data),
