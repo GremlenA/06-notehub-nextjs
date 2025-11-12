@@ -3,26 +3,27 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import css from "./NoteList.module.css";
 import type { Note } from "../../types/note";
-import { deleteNote } from "../../lib/api";
+import { deleteNote } from "../../app/lib/api";
 import Link from "next/link";
 
 interface NoteListProps {
   notes: Note[];
   deletingId?: string | null;
-  setDeletingId: (id: string | null) => void;
+  setDeletingId?: (id: string | null) => void;
 }
 
 export default function NoteList({ notes, deletingId, setDeletingId }: NoteListProps) {
   const qc = useQueryClient();
+  const safeSetDeletingId = setDeletingId ?? (() => {});
 
   const delMutation = useMutation({
     mutationFn: (id: string) => deleteNote(id),
-    onMutate: (id: string) => setDeletingId(id),
+    onMutate: (id: string) => safeSetDeletingId(id),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["notes"] });
-      setDeletingId(null);
+      safeSetDeletingId(null);
     },
-    onError: () => setDeletingId(null),
+    onError: () => safeSetDeletingId(null),
   });
 
   if (!notes || notes.length === 0) {
@@ -39,12 +40,10 @@ export default function NoteList({ notes, deletingId, setDeletingId }: NoteListP
           <div className={css.footer}>
             <span className={css.tag}>{note.tag}</span>
 
-            {/* ✅ View details */}
             <Link href={`/notes/${note.id}`} className={css.link}>
               View details
             </Link>
 
-            {/* ✅ Delete button */}
             <button
               className={css.button}
               disabled={deletingId === note.id || delMutation.status === "pending"}
