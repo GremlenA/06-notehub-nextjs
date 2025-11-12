@@ -11,4 +11,4 @@ This repository contains **ready-to-use styles** for the components used in the 
 3. Copy the `.module.css` files from this repository into the appropriate folders.
 4. Use the provided class names in your JSX.
 
-> No need to write your own styles — just focus on React and TypeScript logic.
+> No need to write your own styles — just focus on React and TypeScript logic."# 07-routing-nextjs" 
